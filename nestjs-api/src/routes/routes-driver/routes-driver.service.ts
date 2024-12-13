@@ -10,11 +10,11 @@ export class RoutesDriverService {
     processRoute(dto: {router_id: string; lat: number; lng: number;}) {
         return this.prismaService.routeDriver.upsert({
             include:{
-                router: true,
+                route: true,
             },
-            where: {router_id: dto.router_id},
+            where: {route_id: dto.router_id},
             create: {
-                router_id: dto.router_id,
+                route_id: dto.router_id,
                 points: {
                     set:{
                         location:{

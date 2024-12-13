@@ -1,16 +1,15 @@
 services:
   app-backend:
     build:
-      context: ./nestjs-api
-      dockerfile: Dockerfile
+      context: .
     volumes:
-      - ./nestjs-api:/home/node/app
+      - .:/home/node/app
     ports:
       - "3000:3000"
 
   db:
     build:
-      context: ./nestjs-api/.docker/mongodb
+      context: ./.docker/mongodb
       dockerfile: Dockerfile
     environment:
       MONGO_INITDB_ROOT_USERNAME: root

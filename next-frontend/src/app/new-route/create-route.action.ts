@@ -7,7 +7,7 @@ export async function createRouteAction(state: any, formData: FormData) {
     const { sourceId, destinationId } = Object.fromEntries(formData);
 
     const directionsResponse = await fetch(
-        `http://localhost:3000/directions?originID=${sourceId}&destinationID=${destinationId}`,
+        `http://localhost:3000/directions?originId=${sourceId}&destinationId=${destinationId}`,
         {
             // cache: "force-cache", //default
             // next: {

@@ -7,7 +7,7 @@ export class DirectionsController {
     constructor(private directionsService: DirectionsService) {}
 
     @Get()
-    getDirections(@Query('originID') originID: string, @Query('destinationID') destinationID: string) {
-        return this.directionsService.getDirections(originID, destinationID);
+    getDirections(@Query('originId') originId: string, @Query('destinationId') destinationId: string) {
+        return this.directionsService.getDirections(originId, destinationId);
     }
 }

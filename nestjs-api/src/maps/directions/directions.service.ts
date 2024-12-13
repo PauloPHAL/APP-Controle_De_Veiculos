@@ -23,8 +23,6 @@ export class DirectionsService {
             params: requestParams,
         });
 
-
-
         return {
             ...data,
             request: {

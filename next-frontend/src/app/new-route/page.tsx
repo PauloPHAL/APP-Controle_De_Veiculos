@@ -36,7 +36,7 @@ export async function searchDirections(source: string, destination: string) {
     const placeDestinationId = destinationData.candidates[0].place_id;
 
     const directionsResponse = await fetch(
-        `http://localhost:3000/directions?originID=${placeSourceId}&destinationID=${placeDestinationId}`,
+        `http://localhost:3000/directions?originId=${placeSourceId}&destinationId=${placeDestinationId}`,
         {
             // cache: "force-cache", //default
             // next: {
