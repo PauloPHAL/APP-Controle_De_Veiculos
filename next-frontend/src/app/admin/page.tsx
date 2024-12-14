@@ -13,6 +13,8 @@ export function AdminPage() {
       return;
     }
 
+    socket.connect();
+
     socket.on(
       `server:new-points:list`,
       async (data: { route_id: string; lat: number; lng: number }) => {
@@ -35,9 +37,11 @@ export function AdminPage() {
         map.moveCar(data.route_id, { lat: data.lat, lng: data.lng });
       }
     );
+
     return () => {
       socket.disconnect();
     }
+
   }, [map]);
 
   return <div className="h-full w-full" ref={mapContainerRef} />;
