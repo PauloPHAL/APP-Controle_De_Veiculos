@@ -1,6 +1,8 @@
 package config
 
-import "os"
+import (
+	"os"
+)
 
 var cfg *config = nil
 
@@ -9,10 +11,11 @@ type database struct {
 }
 
 type kafka struct {
-	broker         string
-	topicFreight   string
-	topicSimulator string
-	topicRoute     string
+	kafkaBroker          string
+	kafkaRouteTopic      string
+	kafkaFreightTopic    string
+	kafkaSimulationTopic string
+	kafkaGroupID         string
 }
 
 type config struct {
@@ -23,13 +26,14 @@ type config struct {
 func newConfig() error {
 	cfg = &config{
 		database: &database{
-			host: getEnv("DATABASE_HOST", "mongodb://admin:admin@localhost:27017/routes?authSource=admin"),
+			host: getEnv("DATABASE_HOST", "mongodb://admin:admin@mongo:27017/routes?authSource=admin"),
 		},
 		kafka: &kafka{
-			broker:         getEnv("KAFKA_BROKER", "localhost:9092"),
-			topicFreight:   getEnv("TOPIC_FREIGHT_WRITER", "freight"),
-			topicSimulator: getEnv("TOPIC_SIMULATOR_WRITER", "simulator"),
-			topicRoute:     getEnv("TOPIC_ROUTE_READER", "route"),
+			kafkaBroker:          getEnv("KAFKA_BROKER", "kafka:9092"),
+			kafkaRouteTopic:      getEnv("KAFKA_ROUTE_TOPIC", "route"),
+			kafkaFreightTopic:    getEnv("KAFKA_FREIGHT_TOPIC", "freight"),
+			kafkaSimulationTopic: getEnv("KAFKA_SIMULATION_TOPIC", "simulation"),
+			kafkaGroupID:         getEnv("KAFKA_GROUP_ID", "route-group"),
 		},
 	}
 	return nil
@@ -45,11 +49,10 @@ func GetConfig() *config {
 }
 
 func getEnv(key, defaultValue string) string {
-	value := os.Getenv(key)
-	if value == "" {
-		return defaultValue
+	if value, ok := os.LookupEnv(key); !ok {
+		return value
 	}
-	return value
+	return defaultValue
 }
 
 //-------------------------------------------------------------
@@ -59,17 +62,21 @@ func (c *config) DatabaseHost() string {
 }
 
 func (c *config) KafkaBroker() string {
-	return c.kafka.broker
-}
-
-func (c *config) KafkaTopic__WRITER__Freight() string {
-	return c.kafka.topicFreight
-}
-
-func (c *config) KafkaTopic__WRITER__Simulator() string {
-	return c.kafka.topicSimulator
+	return c.kafka.kafkaBroker
 }
 
 func (c *config) KafkaTopic__READER__Route() string {
-	return c.kafka.topicRoute
+	return c.kafka.kafkaRouteTopic
+}
+
+func (c *config) KafkaTopic__WRITER__Freight() string {
+	return c.kafka.kafkaFreightTopic
+}
+
+func (c *config) KafkaTopic__WRITER__Simulator() string {
+	return c.kafka.kafkaSimulationTopic
+}
+
+func (c *config) KafkaGroupID() string {
+	return c.kafka.kafkaGroupID
 }

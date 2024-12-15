@@ -25,6 +25,7 @@ func main() {
 	routeService := services.NewRouteService(mongoConection, services.NewFreightService())
 
 	channelDriverMoved := make(chan *events.DriverMovedEvent)
+
 	freightWriter := &kafka.Writer{
 		Addr:     kafka.TCP(config.KafkaBroker()),
 		Topic:    config.KafkaTopic__WRITER__Freight(),
@@ -40,7 +41,7 @@ func main() {
 	routeReader := kafka.NewReader(kafka.ReaderConfig{
 		Brokers: []string{config.KafkaBroker()},
 		Topic:   config.KafkaTopic__READER__Route(),
-		GroupID: "simulator",
+		GroupID: config.KafkaGroupID(),
 	})
 
 	eventHub := hub.NewEventHub(routeService, mongoConection, channelDriverMoved, freightWriter, simulatorWriter)

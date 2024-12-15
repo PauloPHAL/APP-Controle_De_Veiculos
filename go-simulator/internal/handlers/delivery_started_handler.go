@@ -14,13 +14,13 @@ func DeliveryStarted(event *events.DeliveryStartedEvent, routeService *services.
 	}
 
 	driverMovedEvent := events.NewDriverMovedEvent(route.ID, 0, 0)
-	for _, direction := range route.Directions {
-		driverMovedEvent.RouterID = route.ID
-		driverMovedEvent.Lat = direction.Lat
-		driverMovedEvent.Lng = direction.Lng
-		time.Sleep(time.Second)
-		channel <- driverMovedEvent
-	}
+	go func() {
+		for _, direction := range route.Directions {
+			driverMovedEvent = events.NewDriverMovedEvent(route.ID, direction.Lat, direction.Lng)
+			time.Sleep(time.Second)
+			channel <- driverMovedEvent
+		}
+	}()
 
 	return nil
 }

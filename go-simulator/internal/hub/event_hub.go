@@ -49,7 +49,7 @@ func (eh *EventHub) HandleEvent(msg []byte) error {
 	}
 
 	switch baseEvent.EventName {
-	case "RouterCreated":
+	case "RouteCreated":
 		var event events.RouteCreatedEvent
 
 		err := json.Unmarshal(msg, &event)
@@ -59,7 +59,7 @@ func (eh *EventHub) HandleEvent(msg []byte) error {
 
 		return eh.handleRouteCreated(&event)
 
-	case "DeliveryCreated":
+	case "DeliveryStarted":
 		var event events.DeliveryStartedEvent
 
 		err := json.Unmarshal(msg, &event)
@@ -67,7 +67,7 @@ func (eh *EventHub) HandleEvent(msg []byte) error {
 			return fmt.Errorf("error unmarshalling event: %w", err)
 		}
 
-		return eh.handleDeliveryCreated(&event)
+		return eh.handleDeliveryStarted(&event)
 
 	default:
 		return errors.New("event not found")
@@ -99,7 +99,7 @@ func (eh *EventHub) handleRouteCreated(event *events.RouteCreatedEvent) error {
 	return nil
 }
 
-func (eh *EventHub) handleDeliveryCreated(event *events.DeliveryStartedEvent) error {
+func (eh *EventHub) handleDeliveryStarted(event *events.DeliveryStartedEvent) error {
 	err := handlers.DeliveryStarted(event, eh.routeService, eh.channelDrivedMoved)
 	if err != nil {
 		return err
