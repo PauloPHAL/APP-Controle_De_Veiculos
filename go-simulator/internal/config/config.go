@@ -26,7 +26,7 @@ type config struct {
 func newConfig() error {
 	cfg = &config{
 		database: &database{
-			host: getEnv("DATABASE_HOST", "mongodb://admin:admin@mongo:27017/routes?authSource=admin"),
+			host: getEnv("DATABASE_HOST", "mongodb://root:root@localhost:27017/routes?authSource=admin"),
 		},
 		kafka: &kafka{
 			kafkaBroker:          getEnv("KAFKA_BROKER", "kafka:9092"),
