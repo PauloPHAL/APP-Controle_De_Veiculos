@@ -4,7 +4,7 @@ RUN apt update && \
     apt install openssh-server procps -y &&\
     npm install -g @nestjs/cli@10.4.8
 
-USER node
+USER root
 
 WORKDIR /home/node/app
 

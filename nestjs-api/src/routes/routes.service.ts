@@ -1,8 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { CreateRouteDto } from './dto/create-route.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { DirectionsService } from 'src/maps/directions/directions.service';
-
+import * as Kafka from '@confluentinc/kafka-javascript'
+import { UpdateRouteDto } from './dto/update-route.dto';
 
 @Injectable()
 export class RoutesService {
@@ -10,6 +11,7 @@ export class RoutesService {
   constructor(
     private prismaService: PrismaService,
     private directionsService: DirectionsService,
+    @Inject('KAFKA_PRODUCER') private kafkaProducer: Kafka.KafkaJS.Producer,
   ) { }
 
   async create(createRouteDto: CreateRouteDto) {
@@ -22,7 +24,8 @@ export class RoutesService {
     } = await this.directionsService.getDirections(createRouteDto.source_id, createRouteDto.destination_id);
 
     const legs = routes[0].legs[0];
-    return this.prismaService.route.create({
+
+    const route = await this.prismaService.route.create({
       data: {
         name: createRouteDto.name,
         source: {
@@ -51,6 +54,52 @@ export class RoutesService {
         ),
       }
     });
+
+    await this.kafkaProducer.send({
+      topic: 'route',
+      messages: [
+        {
+          value: JSON.stringify({
+            event: 'RouteCreated',
+            id: route.id,
+            distance: legs.distance.value,
+            directions: legs.steps.reduce((acc, step) => {
+              acc.push({
+                lat: step.start_location.lat,
+                lng: step.start_location.lng,
+              });
+
+              acc.push({
+                lat: step.end_location.lat,
+                lng: step.end_location.lng,
+              });
+
+              return acc;
+            }, []),
+          })
+        },
+      ],
+    });
+
+    return route;
+  }
+
+  async startRoute(id: string) {
+    await this.prismaService.route.findUniqueOrThrow({
+      where: { id },
+    });
+
+    await this.kafkaProducer.send({
+      topic: 'route',
+      messages: [
+        {
+          value: JSON.stringify({
+            event: 'DeliveryStarted',
+            route_id: id,
+          }),
+        },
+      ],
+    });
   }
 
   findAll() {
@@ -63,4 +112,10 @@ export class RoutesService {
     });
   }
 
+  async updateFreight(id: string, updateRouteDto: UpdateRouteDto) {
+    return this.prismaService.route.update({
+      where: { id },
+      data: updateRouteDto,
+    });
+  }
 }

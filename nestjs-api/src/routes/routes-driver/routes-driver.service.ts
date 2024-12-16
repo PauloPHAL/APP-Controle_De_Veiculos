@@ -1,23 +1,23 @@
 import { Get, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { RoutesDriverGateway } from './routes-driver.gateway';
 
 @Injectable()
 export class RoutesDriverService {
 
-    constructor(private prismaService: PrismaService) {}
+    constructor(private prismaService: PrismaService, private routesGateway: RoutesDriverGateway) { }
 
-    
-    processRoute(dto: {router_id: string; lat: number; lng: number;}) {
-        return this.prismaService.routeDriver.upsert({
-            include:{
+    async processRoute(dto: { route_id: string; lat: number; lng: number; }) {
+        const routeDriver = await this.prismaService.routeDriver.upsert({
+            include: {
                 route: true,
             },
-            where: {route_id: dto.router_id},
+            where: { route_id: dto.route_id },
             create: {
-                route_id: dto.router_id,
+                route_id: dto.route_id,
                 points: {
-                    set:{
-                        location:{
+                    set: {
+                        location: {
                             lat: dto.lat,
                             lng: dto.lng
                         }
@@ -25,9 +25,9 @@ export class RoutesDriverService {
                 },
             },
             update: {
-                points:{
-                    push:{
-                        location:{
+                points: {
+                    push: {
+                        location: {
                             lat: dto.lat,
                             lng: dto.lng
                         }
@@ -35,5 +35,13 @@ export class RoutesDriverService {
                 }
             }
         });
+
+        this.routesGateway.emitNewPoints({
+            route_id: dto.route_id,
+            lat: dto.lat,
+            lng: dto.lng,
+        });
+
+        return routeDriver;
     };
 }

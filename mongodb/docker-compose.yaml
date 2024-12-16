@@ -1,13 +1,5 @@
 services:
-  app-backend:
-    build:
-      context: .
-    volumes:
-      - .:/home/node/app
-    ports:
-      - "3000:3000"
-
-  db:
+  mongo:
     build:
       context: ./.docker/mongodb
       dockerfile: Dockerfile

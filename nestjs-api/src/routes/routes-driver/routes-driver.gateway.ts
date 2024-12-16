@@ -1,5 +1,7 @@
-import { SubscribeMessage, WebSocketGateway } from '@nestjs/websockets';
+import { SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { RoutesService } from '../routes.service';
+import { Server } from 'socket.io';
+import { Logger } from '@nestjs/common';
 
 @WebSocketGateway({
   cors: {
@@ -7,6 +9,12 @@ import { RoutesService } from '../routes.service';
   },
 })
 export class RoutesDriverGateway {
+
+  @WebSocketServer()
+  server: Server;
+  
+  private logger = new Logger(RoutesDriverGateway.name);
+
   constructor(private routesService: RoutesService) {}
 
   @SubscribeMessage('client:new-points')
@@ -46,6 +54,23 @@ export class RoutesDriverGateway {
       await sleep(2000);
     }
   }
+
+  emitNewPoints(payload: { route_id: string; lat: number; lng: number }) {
+    this.logger.log(
+      `Emitting new points for route ${payload.route_id} - ${payload.lat}, ${payload.lng}`,
+    );
+    this.server.emit(`server:new-points/${payload.route_id}:list`, {
+      route_id: payload.route_id,
+      lat: payload.lat,
+      lng: payload.lng,
+    });
+    this.server.emit('server:new-points:list', {
+      route_id: payload.route_id,
+      lat: payload.lat,
+      lng: payload.lng,
+    });
+  }
+
 }
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));

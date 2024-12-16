@@ -1,0 +1,8 @@
+services:
+  app-frontend:
+    build: .
+    volumes:
+      - .:/home/node/app
+    ports:
+      - 3001:3000
+
