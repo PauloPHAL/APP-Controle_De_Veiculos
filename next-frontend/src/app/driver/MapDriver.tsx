@@ -26,7 +26,6 @@ export function MapDriver(props: MapDriverProps) {
 
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const handler = async (event: any) => {
-            console.log('aaaaaa');
             socket.offAny();
             const routeId = event.target!.value;
             socket.on(

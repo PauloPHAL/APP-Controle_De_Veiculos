@@ -4,7 +4,7 @@
 export async function startRouteAction(state: any, formData: FormData) {
   const { route_id } = Object.fromEntries(formData);
 
-  if(!route_id){
+  if (!route_id) {
     return { error: "Route ID is required" };
   }
 
